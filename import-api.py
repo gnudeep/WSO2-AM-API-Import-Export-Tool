@@ -14,9 +14,7 @@ def main(argv):
     hostName = argv[2]
 
     gitPullAllApis()
-
     zipAllFiles()
-
     importAllApis()
 
 def gitPullAllApis():
