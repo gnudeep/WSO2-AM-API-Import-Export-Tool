@@ -14,12 +14,13 @@ def main(argv):
     userName = argv[2]
     userPassword = argv[3]
     hostName = argv[4]
+    gitRepoPath = argv[5]
     
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName)
-    apiList = getAllApis(accessToken)
-    exportAllApis(apiList)
-    unzipAllFile()
-    gitPushAllApis()
+    apiList = getAllApis(hostName, accessToken)
+    exportAllApis(hostName, apiList, gitRepoPath)
+    unzipAllFile(gitRepoPath)
+    gitPushAllApis(gitRepoPath)
 
 
 def getAccessToken(apiKey, apiSecret, user, password, hostName):
@@ -50,9 +51,9 @@ def getAllApis(hostName, accessToken):
     return apiList
 
 
-def exportAllApis(hostName, apiList):
+def exportAllApis(hostName, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
-        zipFileName = "/tmp/api-repo/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
+        zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
         exportUrl = 'https://' + hostName + ':9443/api-import-export-2.0.0-SNAPSHOT/export-api?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
         headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
         with open(zipFileName, 'wb') as handle:
@@ -65,21 +66,20 @@ def exportAllApis(hostName, apiList):
 
     return True
 
-def unzipAllFile():
-    dir_name = '/tmp/api-repo/'
+def unzipAllFile(gitRepoPath):
     extension = ".zip"
-    os.chdir(dir_name)
-    for item in os.listdir(dir_name):
+    os.chdir(gitRepoPath)
+    for item in os.listdir(gitRepoPath):
         if item.endswith(extension):
             file_name = os.path.abspath(item)
             zip_ref = zipfile.ZipFile(file_name)
-            zip_ref.extractall(dir_name)
+            zip_ref.extractall(gitRepoPath)
             zip_ref.close()
             os.remove(file_name)
     return True
 
-def gitPushAllApis():
-    repo = git.Repo( '/tmp/api-repo' )
+def gitPushAllApis(gitRepoPath):
+    repo = git.Repo(gitRepoPath)
     repo.git.add('*')
     gitStatus = repo.git.status()
     print gitStatus
