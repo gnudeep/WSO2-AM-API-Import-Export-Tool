@@ -1,3 +1,6 @@
+*.class
+*.jar
+target
 # IntelliJ project files
 .idea
 *.iml
