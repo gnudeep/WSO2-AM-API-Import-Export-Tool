@@ -9,7 +9,7 @@ To export APIs user has to use APIM REST API and the APIs exposed by api-import-
 curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: application/json" -d @payload.json http://localhost:9763/client-registration/v0.9/register
 
 {
-    "callbackUrl": "www.google.lk",
+    "callbackUrl": "localhost",
     "clientName": "rest_api_publisher",
     "tokenScope": "Production",
     "owner": "admin",
@@ -19,8 +19,15 @@ curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: applic
 ```
 
 ####Get Access Token
+User the consumer key and secret to retrieve the access token.
 ```
 curl -k -d "grant_type=password&username=admin&password=admin&scope=apim:api_view" -H "Authorization: Basic aU1XRVJpMFNnNjBrVjNDMXU5TWIwX1Ewbzc0YTpabTI3Q1ZMZ1VuRFFMWThlcWxRRmdiSGY4SWth" https://127.0.0.1:8243/token
 ```
-####
+
+#### Execute the API Export tool.
+API export script will export the API to a local git repo and commit the new changes to the remote git repository.
+
+Command syntax:
+
+
 
