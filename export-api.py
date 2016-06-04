@@ -7,6 +7,7 @@ import json
 import os
 import zipfile
 import git
+import base64
 
 def main(argv):
     apiKey = argv[0]
@@ -14,18 +15,20 @@ def main(argv):
     userName = argv[2]
     userPassword = argv[3]
     hostName = argv[4]
-    gitRepoPath = argv[5]
+    tokenEndpointPort = argv[5]
+    restApiEndpointPort = argv[6]
+    gitRepoPath = argv[7]
     
-    (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName)
-    apiList = getAllApis(hostName, accessToken)
+    (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort)
+    apiList = getAllApis(hostName,restApiEndpointPort, accessToken)
     exportAllApis(hostName, apiList, gitRepoPath)
     unzipAllFile(gitRepoPath)
     gitPushAllApis(gitRepoPath)
 
 
-def getAccessToken(apiKey, apiSecret, user, password, hostName):
-    stsUrl = 'https://' + hostName + ':8243/token'
-    payload= {'client_id' : apiKey,'client_secret':apiSecret, 'username':user, 'password':password, 'grant_type':'password', 'scope':'apim:api_view'}
+def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort):
+    stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
+    payload= {'client_id' : apiKey,'client_secret':apiSecret, 'username':userName, 'password':userPassword, 'grant_type':'password', 'scope':'apim:api_view'}
     
     response = requests.post(stsUrl, data=payload, verify=False)
     if response.status_code == 200:
@@ -39,8 +42,8 @@ def getAccessToken(apiKey, apiSecret, user, password, hostName):
         return ('', '0', '')
 
 
-def getAllApis(hostName, accessToken):
-    stsUrl = 'http://' + hostName + ':9763/api/am/publisher/v0.9/apis'
+def getAllApis(hostName, restApiEndpointPort, accessToken):
+    stsUrl = getImpExpEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
     headers = {'Authorization': 'Bearer ' + accessToken}
 
     response = requests.get(stsUrl, headers=headers)
@@ -51,11 +54,12 @@ def getAllApis(hostName, accessToken):
     return apiList
 
 
-def exportAllApis(hostName, apiList, gitRepoPath):
+def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
         zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
-        exportUrl = 'https://' + hostName + ':9443/api-import-export-2.0.0-SNAPSHOT/export-api?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
-        headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
+        importExportEndpoint = getImpExpEndpoint(hostName, port)
+        exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
+        headers = getAuthHeaders(userName, userPassword)
         with open(zipFileName, 'wb') as handle:
             response = requests.get(exportUrl, headers=headers, verify=False, stream=True)
             if not response.ok:
@@ -93,13 +97,22 @@ def gitPushAllApis(gitRepoPath):
 
     return True
 
-def getApimPubliherEndpoint():
+def getImpExpEndpoint(hostName, restApiEnpointPort):
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT/import-api'
+    return endPoint
 
-    return True
+def getRestApiEndpoint(hostName, restApiEnpointPort):
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.9/'
+    return endPoint
 
-def getApimImportExportEndpoint():
+def getTokenEndpoint(hostName, tokenEnpointPort):
+    endPint = 'https://' + hostName + ':' + tokenEnpointPort + '/token'
+    return endPint
 
-    return True
+def getAuthHeaders(userName, userPassword):
+    headerValue = base64.b64encode(userName + ':' + userPassword)
+    headers = "{'Authorization': 'Basic " + headerValue + "'}"
+    return headers
 
 if __name__ == '__main__':
     if len(sys.argv) != 6:
