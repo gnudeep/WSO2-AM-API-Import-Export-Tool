@@ -5,6 +5,7 @@ import os
 import zipfile
 import git
 import glob
+import base64
 
 
 def main(argv):
@@ -12,29 +13,26 @@ def main(argv):
     userName = argv[0]
     userPassword = argv[1]
     hostName = argv[2]
+    gitRepoPath = argv[3]
 
-    gitPullAllApis()
-    zipAllFiles()
-    importAllApis()
+    gitPullAllApis(gitRepoPath)
+    zipAllFiles(gitRepoPath)
+    importAllApis(hostName)
 
-def gitPullAllApis():
-
-    repo = git.Repo( '/tmp/api-repo-import' )
+def gitPullAllApis(gitRepoPath):
+    repo = git.Repo( gitRepoPath )
     print repo.git.status()
     print repo.git.pull()
 
     return True
 
-def zipAllFiles():
-
-    rootdir = '/tmp/api-repo-import'
-
-    dir_list = os.walk(rootdir).next()[1]
+def zipAllFiles(gitRepoPath):
+    dir_list = os.walk(gitRepoPath).next()[1]
     dir_list.remove('.git')
     for dir in dir_list:
-        zipFileName = rootdir + "/" + dir + ".zip"
-        zipFolderName = rootdir + "/" + dir
-        abszipFolderName = os.path.abspath(rootdir)
+        zipFileName = gitRepoPath + "/" + dir + ".zip"
+        zipFolderName = gitRepoPath + "/" + dir
+        abszipFolderName = os.path.abspath(gitRepoPath)
         ziph = zipfile.ZipFile(zipFileName, 'w', zipfile.ZIP_DEFLATED)
         for root, dirs, files in os.walk(zipFolderName):
             for file in files:
@@ -53,10 +51,20 @@ def deletAllApis():
 
     return True;
 
-def importAllApis():
-    importUrl = 'https://172.17.42.1:9543/api-import-export-2.0.0-SNAPSHOT/import-api'
-    headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
-    rootdir = '/tmp/api-repo-import'
+def getImpExpEndpoint(hostName, port):
+    endPint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-SNAPSHOT/import-api'
+    return endPint
+
+def getAuthHeaders(userName, userPassword):
+    headerValue = base64.b64encode(userName + ':' + userPassword)
+    headers = "{'Authorization': 'Basic " + headerValue + "'}"
+    return headers
+
+
+def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
+    importUrl = getImpExpEndpoint(hostName,port)
+    headers = getAuthHeaders(userName, userPassword)
+    rootdir = gitRepoPath
     os.chdir(rootdir)
     for file in glob.glob("*.zip"):
         fileName = rootdir + "/" + file
