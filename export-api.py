@@ -1,8 +1,6 @@
 #!/usr/bin/python
 import sys
 import requests
-import datetime
-import time
 import json
 import os
 import zipfile
@@ -21,7 +19,7 @@ def main(argv):
     
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort)
     apiList = getAllApis(hostName,restApiEndpointPort, accessToken)
-    exportAllApis(hostName, apiList, gitRepoPath)
+    exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
     unzipAllFile(gitRepoPath)
     gitPushAllApis(gitRepoPath)
 
@@ -43,10 +41,9 @@ def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEnd
 
 
 def getAllApis(hostName, restApiEndpointPort, accessToken):
-    stsUrl = getImpExpEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
+    stsUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
     headers = {'Authorization': 'Bearer ' + accessToken}
-
-    response = requests.get(stsUrl, headers=headers)
+    response = requests.get(stsUrl, headers=headers, verify=False)
     data = json.loads(response.text)
     apiList = []
     for x in range(0, data['count']):
@@ -59,7 +56,11 @@ def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
         zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
         importExportEndpoint = getImpExpEndpoint(hostName, port)
         exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
-        headers = getAuthHeaders(userName, userPassword)
+        print exportUrl
+        #headers = getAuthHeaders(userName, userPassword)
+        #print headers
+        headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
+        #print headers
         with open(zipFileName, 'wb') as handle:
             response = requests.get(exportUrl, headers=headers, verify=False, stream=True)
             if not response.ok:
@@ -98,7 +99,7 @@ def gitPushAllApis(gitRepoPath):
     return True
 
 def getImpExpEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT/import-api'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT/export-api'
     return endPoint
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):
@@ -111,12 +112,12 @@ def getTokenEndpoint(hostName, tokenEnpointPort):
 
 def getAuthHeaders(userName, userPassword):
     headerValue = base64.b64encode(userName + ':' + userPassword)
-    headers = "{'Authorization': 'Basic " + headerValue + "'}"
+    headers = "{'Authorization': u'Basic " + headerValue + "'}"
     return headers
 
 if __name__ == '__main__':
-    if len(sys.argv) != 7:
+    if len(sys.argv) != 9:
         print "Usage: python export-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath"
-        print "Example: ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin 8243 9443 /tmp/api-repo/"
+        print "Example: ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/"
         sys.exit(1)
     main(sys.argv[1:])
