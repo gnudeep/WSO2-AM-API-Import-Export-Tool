@@ -39,3 +39,5 @@ Create Application in the APIM deployment in the API import APIM deployment foll
 ####Execute the API Import tool
 API import script updates the local Git repository to get latest chages from the remote Git repo and export all the API in the Git repo to the given APIM deployment.
 
+Command syntax:
+./import-api.py admin admin localhost 9543 /tmp/api-repo
