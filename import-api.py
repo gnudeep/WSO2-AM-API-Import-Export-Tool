@@ -13,11 +13,12 @@ def main(argv):
     userName = argv[0]
     userPassword = argv[1]
     hostName = argv[2]
-    gitRepoPath = argv[3]
+    restApiEndpointPort = argv[3]
+    gitRepoPath = argv[4]
 
     gitPullAllApis(gitRepoPath)
     zipAllFiles(gitRepoPath)
-    importAllApis(hostName)
+    importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
 
 def gitPullAllApis(gitRepoPath):
     repo = git.Repo( gitRepoPath )
@@ -58,6 +59,7 @@ def getImpExpEndpoint(hostName, port):
 def getAuthHeaders(userName, userPassword):
     headerValue = base64.b64encode(userName + ':' + userPassword)
     headers = "{'Authorization': 'Basic " + headerValue + "'}"
+    headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
     return headers
 
 
@@ -76,7 +78,8 @@ def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     return True
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        print "Usage: python import-api.py userName, password hostName"
+    if len(sys.argv) != 6:
+        print "Usage: python import-api.py userName, password hostName restApiEndpointPort gitRepoPath"
+        print "Example: ./import-api.py admin admin localhost 9543 /tmp/api-repo"
         sys.exit(1)
     main(sys.argv[1:])
