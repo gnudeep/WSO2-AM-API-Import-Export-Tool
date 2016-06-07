@@ -30,6 +30,7 @@ curl -k -d "grant_type=password&username=admin&password=admin&scope=apim:api_vie
 API export script exports the API to a local git repo and commit the new changes to the remote git repository.
 
 Command syntax:
+./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/
 
 
 ####API Import steps
