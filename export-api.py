@@ -115,7 +115,8 @@ def getAuthHeaders(userName, userPassword):
     return headers
 
 if __name__ == '__main__':
-    if len(sys.argv) != 6:
-        print "Usage: python export-api.py apiKey, apiSecret, userName, password hostName"
+    if len(sys.argv) != 7:
+        print "Usage: python export-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath"
+        print "Example: ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin 8243 9443 /tmp/api-repo/"
         sys.exit(1)
     main(sys.argv[1:])
