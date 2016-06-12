@@ -21,7 +21,14 @@ def main(argv):
     apiList = getAllApis(hostName,restApiEndpointPort, accessToken)
     exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
     unzipAllFile(gitRepoPath)
-    gitPushAllApis(gitRepoPath)
+
+    dir_list = os.walk(gitRepoPath).next()[1]
+    if '.git' in dir_list:
+        gitPushAllApis(gitRepoPath)
+        print "All APIs exported and saved in " + gitRepoPath + "and pushed to remote git repository."
+    else:
+        print "All APIs exported and saved in " + gitRepoPath
+        return True
 
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort):
@@ -87,7 +94,7 @@ def gitPushAllApis(gitRepoPath):
     repo = git.Repo(gitRepoPath)
     repo.git.add('*')
     gitStatus = repo.git.status()
-    print gitStatus
+    #print gitStatus
 
     if gitStatus.find("nothing to commit") > -1:
         repo.git.push()

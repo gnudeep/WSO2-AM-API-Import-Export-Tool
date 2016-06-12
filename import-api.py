@@ -29,7 +29,8 @@ def gitPullAllApis(gitRepoPath):
 
 def zipAllFiles(gitRepoPath):
     dir_list = os.walk(gitRepoPath).next()[1]
-    dir_list.remove('.git')
+    if '.git' in dir_list:
+        dir_list.remove('.git')
     for dir in dir_list:
         zipFileName = gitRepoPath + "/" + dir + ".zip"
         zipFolderName = gitRepoPath + "/" + dir
@@ -39,7 +40,7 @@ def zipAllFiles(gitRepoPath):
             for file in files:
                 absname = os.path.abspath(os.path.join(root, file))
                 arcname = absname[len(abszipFolderName) + 1:]
-                print 'zipping %s as %s' % (os.path.join(root, file), arcname)
+                # DEBUG: print 'zipping %s as %s' % (os.path.join(root, file), arcname)
                 ziph.write(absname, arcname)
         ziph.close()
     return True
