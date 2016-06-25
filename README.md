@@ -9,7 +9,10 @@ To export APIs user has to use APIM REST API and the APIs exposed by api-import-
 ####Create Applicatin for APIM REST API:
 ```
 curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: application/json" -d @payload.json http://localhost:9763/client-registration/v0.9/register
+```
 
+payload.json
+```
 {
     "callbackUrl": "localhost",
     "clientName": "rest_api_publisher",
@@ -20,18 +23,19 @@ curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: applic
 }
 ```
 
-####Get Access Token
-User the consumer key and secret to retrieve the access token.
+Response
 ```
-curl -k -d "grant_type=password&username=admin&password=admin&scope=apim:api_view" -H "Authorization: Basic aU1XRVJpMFNnNjBrVjNDMXU5TWIwX1Ewbzc0YTpabTI3Q1ZMZ1VuRFFMWThlcWxRRmdiSGY4SWth" https://127.0.0.1:8243/token
+{"appOwner":null,"clientName":null,"callBackURL":"localhost","isSaasApplication":true,"jsonString":"{\"username\":\"admin\",\"redirect_uris\":\"www.google.lk\",\"client_name\":\"admin_rest_api_publisher\",\"grant_types\":\"urn:ietf:params:oauth:grant-type:saml2-bearer iwa:ntlm implicit refresh_token client_credentials authorization_code password\"}","clientId":"iMWERi0Sg60kV3C1u9Mb0_Q0o74a","clientSecret":"Zm27CVLgUnDQLY8eqlQFgbHf8Ika"}
+
 ```
 
 #### Execute the API Export tool.
 API export script exports the API to a local git repo and commit the new changes to the remote git repository.
 
 Command syntax:
+```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/
-
+```
 
 ####API Import steps
 Create Application in the APIM deployment in the API import APIM deployment following the steps explained in the Create Application section and retrieve a access token to communicate with import APIM REST API.
@@ -40,4 +44,6 @@ Create Application in the APIM deployment in the API import APIM deployment foll
 API import script updates the local Git repository to get latest chages from the remote Git repo and export all the API in the Git repo to the given APIM deployment.
 
 Command syntax:
-./import-api.py admin admin localhost 9543 /tmp/api-repo
+```
+./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin admin localhost 8343 9543 /tmp/api-repo/
+```
