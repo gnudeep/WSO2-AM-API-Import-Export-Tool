@@ -1,4 +1,4 @@
-# WSO2-AM-API-Import-Export-Tool
+# WSO2 API Manager Bulk API Import Export Tool
 
 This tool helps to export all the created APIs in a WSO2 API Manager deployment in to a set of source file and export it in to a different WSO2 API Manager deployment.
 
