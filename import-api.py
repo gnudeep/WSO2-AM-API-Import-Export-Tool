@@ -10,7 +10,6 @@ import json
 
 
 def main(argv):
-
     apiKey = argv[0]
     apiSecret = argv[1]
     userName = argv[2]
@@ -20,12 +19,15 @@ def main(argv):
     restApiEndpointPort = argv[6]
     gitRepoPath = argv[7]
 
-    #Delete subscription
-
     #Delete APIS
-    scope = 'apim:api_view'
+    scope = 'apim:api_view apim:subscription_view apim:subscribe'
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
     apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
+
+    #Delete subscription
+    subsList = getAllSubscriptions(hostName,restApiEndpointPort, accessToken, apiList)
+    deleteAllSubscriptions(hostName,restApiEndpointPort,accessToken,subsList)
+
     # scope = 'apim:api_create'
     # (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
     # deleteAllApis(hostName,restApiEndpointPort, accessToken, apiList)
@@ -38,9 +40,9 @@ def main(argv):
     # importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
 
     #Publish Apis
-    scope = 'apim:api_publish'
-    (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
-    publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+    # scope = 'apim:api_publish'
+    # (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
+    # publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
@@ -66,6 +68,37 @@ def getAllApis(hostName, restApiEndpointPort, accessToken):
     for x in range(0, data['count']):
         apiList.append((data['list'][x]['name'], data['list'][x]['id']))
     return apiList
+
+def deleteAllSubscriptions(hostName, restApiEndpointPort, accessToken,subsList):
+    baseUrl = getRestStoreApiEndpoint(hostName, restApiEndpointPort) + "/" + "subscriptions"
+    headers = {'Authorization': 'Bearer ' + accessToken}
+    for x in range(0, len(subsList)):
+        stsUrl = baseUrl + "/" + subsList[x][1]
+        response = requests.delete(stsUrl, headers=headers, verify=False)
+        if response.status_code == 200:
+            print "Successfully deleted the subscription: " + subsList[x][0] + " : " + subsList[x][0]
+        else:
+            print "Error in deleting the subscriptions :" + subsList[x][1]
+
+    return True
+
+def getAllSubscriptions(hostName, restApiEndpointPort, accessToken, apiList):
+    baseUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "subscriptions?apiId="
+    headers = {'Authorization': 'Bearer ' + accessToken}
+    subsList = []
+    for x in range(0, len(apiList)):
+        stsUrl = baseUrl + apiList[x][1]
+        print stsUrl
+        response = requests.get(stsUrl, headers=headers, verify=False)
+        if response.status_code == 200:
+            print "Successfully received subscriptions: " + apiList[x][0]
+            #Loop over list of subscription and delete subscription
+            data = json.loads(response.text)
+            for x in range(0, data['count']):
+                subsList.append((data['list'][x]['apiIdentifier'], data['list'][x]['subscriptionId']))
+        else:
+            print "Error in getting subscriptions :" + apiList[x][1]
+    return subsList
 
 def deleteAllApis(hostName, restApiEndpointPort, accessToken, apiList):
     baseUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
@@ -125,6 +158,10 @@ def getImpExpEndpoint(hostName, port):
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):
     endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.9'
+    return endPoint
+
+def getRestStoreApiEndpoint(hostName, restApiEnpointPort):
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/store/v0.9'
     return endPoint
 
 def getTokenEndpoint(hostName, tokenEnpointPort):
