@@ -7,6 +7,7 @@ import git
 import glob
 import base64
 import json
+from requests.auth import HTTPBasicAuth
 
 
 def main(argv):
@@ -174,22 +175,19 @@ def getAuthHeaders(userName, userPassword):
     return headers
 
 def getAuthHeaders(userName, userPassword):
-    headerValue = base64.b64encode(userName + ':' + userPassword)
-    headers = "{'Authorization': 'Basic " + headerValue + "'}"
-    headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
-    return headers
+    return HTTPBasicAuth(userName, userPassword)
 
 
 def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     importUrl = getImpExpEndpoint(hostName,port)
-    headers = getAuthHeaders(userName, userPassword)
+    basicAuth = getAuthHeaders(userName, userPassword)
     rootdir = gitRepoPath
     os.chdir(rootdir)
     for file in glob.glob("*.zip"):
         fileName = rootdir + "/" + file
         print fileName
         with open(fileName, 'rb') as f:
-            response = requests.post(importUrl, headers=headers, verify=False, files={'file': f})
+            response = requests.post(importUrl, auth=basicAuth, verify=False, files={'file': f})
             if not response.ok:
                 print response
     return True

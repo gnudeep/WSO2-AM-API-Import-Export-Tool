@@ -5,7 +5,7 @@ import json
 import os
 import zipfile
 import git
-import base64
+from requests.auth import HTTPBasicAuth
 
 def main(argv):
     apiKey = argv[0]
@@ -63,13 +63,9 @@ def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
         zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
         importExportEndpoint = getImpExpEndpoint(hostName, port)
         exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
-        print exportUrl
-        #headers = getAuthHeaders(userName, userPassword)
-        #print headers
-        headers = {'Authorization': 'Basic YWRtaW46YWRtaW4='}
-        #print headers
+        basicAuth = getAuthHeaders(userName, userPassword)
         with open(zipFileName, 'wb') as handle:
-            response = requests.get(exportUrl, headers=headers, verify=False, stream=True)
+            response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
             if not response.ok:
                 print response
 
@@ -118,9 +114,7 @@ def getTokenEndpoint(hostName, tokenEnpointPort):
     return endPint
 
 def getAuthHeaders(userName, userPassword):
-    headerValue = base64.b64encode(userName + ':' + userPassword)
-    headers = "{'Authorization': u'Basic " + headerValue + "'}"
-    return headers
+    return HTTPBasicAuth(userName, userPassword)
 
 if __name__ == '__main__':
     if len(sys.argv) != 9:
