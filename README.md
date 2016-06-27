@@ -2,7 +2,7 @@
 
 This tool helps to export all the created APIs in a WSO2 API Manager deployment in to a set of source file and import it in to a different WSO2 API Manager deployment.
 
-To export APIs user has to use APIM REST API and the APIs exposed by api-import-export-2.0.0 web application.
+To export APIs user has to use APIM REST API and the APIs exposed by [api-import-export-2.0.0](https://docs.wso2.com/display/AM200/Migrating+the+APIs+to+a+Different+Environment) web application.
 
 ####API Export steps
 
