@@ -5,10 +5,8 @@ import os
 import zipfile
 import git
 import glob
-import base64
 import json
 from requests.auth import HTTPBasicAuth
-
 
 def main(argv):
     apiKey = argv[0]
@@ -20,7 +18,7 @@ def main(argv):
     restApiEndpointPort = argv[6]
     gitRepoPath = argv[7]
 
-    #Delete APIS
+    #List APIs
     scope = 'apim:api_view apim:subscription_view apim:subscribe'
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
     apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
@@ -29,6 +27,7 @@ def main(argv):
     subsList = getAllSubscriptions(hostName,restApiEndpointPort, accessToken, apiList)
     deleteAllSubscriptions(hostName,restApiEndpointPort,accessToken,subsList)
 
+    #Delete APIS
     # scope = 'apim:api_create'
     # (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
     # deleteAllApis(hostName,restApiEndpointPort, accessToken, apiList)
@@ -170,13 +169,7 @@ def getTokenEndpoint(hostName, tokenEnpointPort):
     return endPint
 
 def getAuthHeaders(userName, userPassword):
-    headerValue = base64.b64encode(userName + ':' + userPassword)
-    headers = "{'Authorization': u'Basic " + headerValue + "'}"
-    return headers
-
-def getAuthHeaders(userName, userPassword):
     return HTTPBasicAuth(userName, userPassword)
-
 
 def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     importUrl = getImpExpEndpoint(hostName,port)

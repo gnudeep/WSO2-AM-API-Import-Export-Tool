@@ -30,7 +30,6 @@ def main(argv):
         print "All APIs exported and saved in " + gitRepoPath
         return True
 
-
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
     payload= {'client_id' : apiKey,'client_secret':apiSecret, 'username':userName, 'password':userPassword, 'grant_type':'password', 'scope':'apim:api_view'}
@@ -46,7 +45,6 @@ def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEnd
         print 'Failed to obtain access token, status code ' + str(response.status_code)
         return ('', '0', '')
 
-
 def getAllApis(hostName, restApiEndpointPort, accessToken):
     stsUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
     headers = {'Authorization': 'Bearer ' + accessToken}
@@ -56,7 +54,6 @@ def getAllApis(hostName, restApiEndpointPort, accessToken):
     for x in range(0, data['count']):
         apiList.append((data['list'][x]['name'], data['list'][x]['version']))
     return apiList
-
 
 def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
