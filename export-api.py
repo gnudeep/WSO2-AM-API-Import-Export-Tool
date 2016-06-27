@@ -99,7 +99,7 @@ def gitPushAllApis(gitRepoPath):
     return True
 
 def getImpExpEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT/export-api'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT-v0/export-api'
     return endPoint
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):

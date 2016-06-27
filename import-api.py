@@ -19,30 +19,28 @@ def main(argv):
     gitRepoPath = argv[7]
 
     #List APIs
-    scope = 'apim:api_view apim:subscription_view apim:subscribe'
+    scope = 'apim:api_view apim:subscription_view apim:subscribe apim:api_create apim:api_publish'
+
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
     apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
 
-    #Delete subscription
+    #Delete all subscription
     subsList = getAllSubscriptions(hostName,restApiEndpointPort, accessToken, apiList)
     deleteAllSubscriptions(hostName,restApiEndpointPort,accessToken,subsList)
 
-    #Delete APIS
-    # scope = 'apim:api_create'
-    # (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
-    # deleteAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+    #Delete all APIS
+    deleteAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
     #Import APIs
     # dir_list = os.walk(gitRepoPath).next()[1]
     # if '.git' in dir_list:
     #     gitPullAllApis(gitRepoPath)
-    # zipAllFiles(gitRepoPath)
-    # importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
+    zipAllFiles(gitRepoPath)
+    importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
 
-    #Publish Apis
-    # scope = 'apim:api_publish'
-    # (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
-    # publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+    #Publish all APIs
+    apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
+    publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
@@ -153,8 +151,8 @@ def zipAllFiles(gitRepoPath):
     return True
 
 def getImpExpEndpoint(hostName, port):
-    endPint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-SNAPSHOT/import-api'
-    return endPint
+    endPoint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-SNAPSHOT-v0/import-api?preserveProvider=false'
+    return endPoint
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):
     endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.9'

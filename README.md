@@ -34,7 +34,12 @@ API export script exports the API to a local Git repo and push the new changes t
 
 Command syntax: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
-./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/
+./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin123 localhost 8243 9443 /tmp/api-repo/
+```
+
+For Tenants
+```
+./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin@mytenant.com mytenant123 localhost 8243 9443 /tmp/api-repo/
 ```
 
 ####API Import steps
