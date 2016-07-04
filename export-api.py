@@ -16,19 +16,31 @@ def main(argv):
     tokenEndpointPort = argv[5]
     restApiEndpointPort = argv[6]
     gitRepoPath = argv[7]
-    
+    if len(sys.argv) > 9:
+        apiName = argv[8]
+        apiVersion = argv[9]
+
+    #List all APIs
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort)
     apiList = getAllApis(hostName,restApiEndpointPort, accessToken)
-    exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
+
+    #Export APIs
+    if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
+        exportSingleApi(hostName, restApiEndpointPort, userName, userPassword,apiName, apiVersion, gitRepoPath)
+    else:
+        exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
+
+    #Unzip all the exported APIs
     unzipAllFile(gitRepoPath)
 
+    #Push to a Git Repository
     dir_list = os.walk(gitRepoPath).next()[1]
     if '.git' in dir_list:
         gitPushAllApis(gitRepoPath)
         print "All APIs exported and saved in " + gitRepoPath + "and pushed to remote git repository."
     else:
         print "All APIs exported and saved in " + gitRepoPath
-        return True
+        return
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
@@ -55,6 +67,18 @@ def getAllApis(hostName, restApiEndpointPort, accessToken):
         apiList.append((data['list'][x]['name'], data['list'][x]['version']))
     return apiList
 
+def exportSingleApi(hostName, port, userName, userPassword, apiName, apiVersion, gitRepoPath):
+    zipFileName = gitRepoPath + "/" + apiName + "-" + apiVersion + ".zip"
+    importExportEndpoint = getImpExpEndpoint(hostName, port)
+    exportUrl = importExportEndpoint + '?name=' + apiName + '&version=' + apiVersion + '&provider=admin'
+    basicAuth = getAuthHeaders(userName, userPassword)
+    with open(zipFileName, 'wb') as handle:
+        response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
+        if not response.ok:
+            print response
+        for block in response.iter_content(1024):
+            handle.write(block)
+
 def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
         zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
@@ -65,11 +89,9 @@ def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
             response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
             if not response.ok:
                 print response
-
             for block in response.iter_content(1024):
                 handle.write(block)
-
-    return True
+    return
 
 def unzipAllFile(gitRepoPath):
     extension = ".zip"
@@ -81,14 +103,12 @@ def unzipAllFile(gitRepoPath):
             zip_ref.extractall(gitRepoPath)
             zip_ref.close()
             os.remove(file_name)
-    return True
+    return
 
 def gitPushAllApis(gitRepoPath):
     repo = git.Repo(gitRepoPath)
     repo.git.add('*')
     gitStatus = repo.git.status()
-    #print gitStatus
-
     if gitStatus.find("nothing to commit") > -1:
         repo.git.push()
     else:
@@ -114,8 +134,8 @@ def getAuthHeaders(userName, userPassword):
     return HTTPBasicAuth(userName, userPassword)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 9:
-        print "Usage: python export-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath"
-        print "Example: ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/"
+    if len(sys.argv) < 9:
+        print "Usage: python export-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort stagingDir apiName apiVersion"
+        print "Example: ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin localhost 8243 9443 /tmp/api-repo/ ERP 1.0.1"
         sys.exit(1)
     main(sys.argv[1:])
