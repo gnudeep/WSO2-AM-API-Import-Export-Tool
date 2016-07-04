@@ -17,12 +17,20 @@ def main(argv):
     tokenEndpointPort = argv[5]
     restApiEndpointPort = argv[6]
     gitRepoPath = argv[7]
+    if len(sys.argv) > 9:
+        apiName = argv[8]
+        apiVersion = argv[9]
+
 
     #List APIs
     scope = 'apim:api_view apim:subscription_view apim:subscribe apim:api_create apim:api_publish'
-
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
-    apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
+
+    apiList = []
+    if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
+        apiList = getApiId(hostName,restApiEndpointPort, accessToken, apiName, apiVersion)
+    else:
+        apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
 
     #Delete all subscription
     subsList = getAllSubscriptions(hostName,restApiEndpointPort, accessToken, apiList)
@@ -35,11 +43,17 @@ def main(argv):
     # dir_list = os.walk(gitRepoPath).next()[1]
     # if '.git' in dir_list:
     #     gitPullAllApis(gitRepoPath)
+
     zipAllFiles(gitRepoPath)
-    importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
+
+    if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
+        importSingleApi(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath, apiName, apiVersion)
+    else:
+        importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
 
     #Publish all APIs
     apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
+
     publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
@@ -56,6 +70,17 @@ def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEnd
     else:
         print 'Failed to obtain access token, status code ' + str(response.status_code)
         return ('', '0', '')
+
+def getApiId(hostName, restApiEndpointPort, accessToken, apiName, apiVerison):
+    stsUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
+    headers = {'Authorization': 'Bearer ' + accessToken}
+    response = requests.get(stsUrl, headers=headers, verify=False)
+    data = json.loads(response.text)
+    apiList = []
+    for x in range(0, data['count']):
+        if data['list'][x]['name'] == apiName and data['list'][x]['version'] == apiVerison:
+            apiList.append((data['list'][x]['name'], data['list'][x]['id']))
+    return apiList
 
 def getAllApis(hostName, restApiEndpointPort, accessToken):
     stsUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "apis"
@@ -169,6 +194,17 @@ def getTokenEndpoint(hostName, tokenEnpointPort):
 def getAuthHeaders(userName, userPassword):
     return HTTPBasicAuth(userName, userPassword)
 
+def importSingleApi(userName, userPassword, hostName, port, gitRepoPath, apiName, apiVersion):
+    importUrl = getImpExpEndpoint(hostName,port)
+    basicAuth = getAuthHeaders(userName, userPassword)
+    rootdir = gitRepoPath
+    fileName = rootdir + "/" + apiName + "-" + apiVersion + ".zip"
+    with open(fileName, 'rb') as f:
+        response = requests.post(importUrl, auth=basicAuth, verify=False, files={'file': f})
+        if not response.ok:
+            print response
+    return
+
 def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     importUrl = getImpExpEndpoint(hostName,port)
     basicAuth = getAuthHeaders(userName, userPassword)
@@ -181,11 +217,11 @@ def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
             response = requests.post(importUrl, auth=basicAuth, verify=False, files={'file': f})
             if not response.ok:
                 print response
-    return True
+    return
 
 if __name__ == '__main__':
-    if len(sys.argv) != 9:
-        print "Usage: python import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath"
-        print "Example: ./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin admin localhost 8343 9543 /tmp/api-repo/"
+    if len(sys.argv) < 9:
+        print "Usage: python import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath apiName apiVersion"
+        print "Example: ./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin admin localhost 8343 9543 /tmp/api-repo/ ERP 1.0.1"
         sys.exit(1)
     main(sys.argv[1:])
