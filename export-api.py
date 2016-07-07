@@ -83,7 +83,7 @@ def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
         zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
         importExportEndpoint = getImpExpEndpoint(hostName, port)
-        exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=admin'
+        exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=' + userName
         basicAuth = getAuthHeaders(userName, userPassword)
         with open(zipFileName, 'wb') as handle:
             response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)

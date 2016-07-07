@@ -48,13 +48,12 @@ def main(argv):
 
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
         importSingleApi(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath, apiName, apiVersion)
+        #publishSingleAPI()
     else:
         importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
-
-    #Publish all APIs
-    apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
-
-    publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+        #Publish all APIs
+        apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
+        publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
