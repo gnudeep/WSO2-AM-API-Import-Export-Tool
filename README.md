@@ -2,11 +2,15 @@
 
 This tool helps to export all the created APIs in a WSO2 API Manager deployment in to a set of source file and import it in to a different WSO2 API Manager deployment.
 
-To export APIs user has to use APIM REST API and the APIs exposed by [api-import-export-2.0.0](https://docs.wso2.com/display/AM200/Migrating+the+APIs+to+a+Different+Environment) web application.
+To export APIs, the script uses [API Manager REST API](https://docs.wso2.com/display/AM200/Published+APIs) and the APIs exposed by [api-import-export-2.0.0](https://docs.wso2.com/display/AM200/Migrating+the+APIs+to+a+Different+Environment) web application.
 
 ####API Export steps
+API Import and Export scripts need OAuth application registered in the API Manager to use Store/Publisher REST API.
 
 #### Create Applicatin for API Manager REST API:
+To create a OAuth application Carbon user or Carbon tenant user credentials have to be provided.
+
+OAuth Application Creation Request.
 ```
 curl -X POST -H "Authorization: Basic YWRtaW46YWRtaW4=" -H "Content-Type: application/json" -d @payload.json http://localhost:9763/client-registration/v0.9/register
 ```
@@ -30,23 +34,23 @@ Response
 ```
 
 #### Execute the API Export tool
-API export script exports the API to a local Git repo and push the new changes to a remote Git repository.
+API export script exports the API (download API Zip archive and unzip) to a local folder. If the local folder is a Git repository the script commit new changes and push the new changes to a remote Git repository.
 
 Command syntax: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin123 localhost 8243 9443 /tmp/api-repo/
 ```
 
-For Tenants
+For Multi-Tenant environments
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin@mytenant.com mytenant123 localhost 8243 9443 /tmp/api-repo/
 ```
 
 ####API Import steps
-Create Application in the APIM deployment in the API import APIM deployment following the steps explained in the Create Application section and retrieve a access token to communicate with import APIM REST API.
+Create an OAuth application in the destination API Manager deployment to import APIs. retrieve a access token to communicate with import APIM REST API.
 
 ####Execute the API Import tool
-API import script updates the local Git repository to get latest chages from the remote Git repo and export all the API in the Git repo to the given APIM deployment.
+API import script updates the local Git repository to get latest changes from the remote Git repo and export all the API in the Git repo to the given APIM deployment.
 
 Command syntax: import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
