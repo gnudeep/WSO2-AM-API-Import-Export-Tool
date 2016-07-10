@@ -21,7 +21,6 @@ def main(argv):
         apiName = argv[8]
         apiVersion = argv[9]
 
-
     #List APIs
     scope = 'apim:api_view apim:subscription_view apim:subscribe apim:api_create apim:api_publish'
     (accessToken, expiresIn, refreshToken) = getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort,scope)
@@ -39,11 +38,12 @@ def main(argv):
     #Delete all APIS
     deleteAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
-    #Import APIs
-    # dir_list = os.walk(gitRepoPath).next()[1]
-    # if '.git' in dir_list:
-    #     gitPullAllApis(gitRepoPath)
+    #Update the Git repository
+    dir_list = os.walk(gitRepoPath).next()[1]
+    if '.git' in dir_list:
+         gitPullAllApis(gitRepoPath)
 
+    #Archive APIs
     zipAllFiles(gitRepoPath)
 
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
@@ -153,8 +153,7 @@ def gitPullAllApis(gitRepoPath):
     repo = git.Repo( gitRepoPath )
     print repo.git.status()
     print repo.git.pull()
-
-    return True
+    return
 
 def zipAllFiles(gitRepoPath):
     dir_list = os.walk(gitRepoPath).next()[1]
@@ -175,6 +174,7 @@ def zipAllFiles(gitRepoPath):
     return True
 
 def getImpExpEndpoint(hostName, port):
+    #Preserve provider set to false to support new environments
     endPoint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-SNAPSHOT-v0/import-api?preserveProvider=false'
     return endPoint
 
