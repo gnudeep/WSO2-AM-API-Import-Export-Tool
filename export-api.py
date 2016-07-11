@@ -6,6 +6,9 @@ import os
 import zipfile
 import git
 from requests.auth import HTTPBasicAuth
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def main(argv):
     apiKey = argv[0]
