@@ -36,15 +36,23 @@ Response
 #### Execute the API Export tool
 API export script exports the API (download API Zip archive and unzip) to a local folder. If the local folder is a Git repository the script commit new changes and push the new changes to a remote Git repository.
 
-Command syntax: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
+Command syntax to export all the APIs: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin123 localhost 8243 9443 /tmp/api-repo/
 ```
 
+Command syntax to export single API: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath apiName apiVersion
+```
+./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin123 localhost 8243 9443 /tmp/api-repo/ DEEP-Test 1.0.0
+```
+
 For Multi-Tenant environments
+
+Command syntax to export all the APIs: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin@mytenant.com mytenant123 localhost 8243 9443 /tmp/api-repo/
 ```
+
 
 ####API Import steps
 Create an OAuth application in the destination API Manager deployment to import APIs. retrieve a access token to communicate with import APIM REST API.
