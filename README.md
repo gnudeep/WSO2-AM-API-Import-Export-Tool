@@ -53,8 +53,9 @@ export-api.py apiKey apiSecret userName password hostName tokenEndpointPort rest
 ```
 
 For Multi-Tenant environments
+Command syntax to export all the APIs:
 ```
-Command syntax to export all the APIs: export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
+export-api.py apiKey apiSecret userName@TenantDoamain tenantPassword hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
 
 ```
