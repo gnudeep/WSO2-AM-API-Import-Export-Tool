@@ -70,7 +70,7 @@ def getAllApis(hostName, restApiEndpointPort, accessToken):
 def exportSingleApi(hostName, port, userName, userPassword, apiName, apiVersion, gitRepoPath):
     zipFileName = gitRepoPath + "/" + apiName + "-" + apiVersion + ".zip"
     importExportEndpoint = getImpExpEndpoint(hostName, port)
-    exportUrl = importExportEndpoint + '?name=' + apiName + '&version=' + apiVersion + '&provider=admin'
+    exportUrl = importExportEndpoint + '?name=' + apiName + '&version=' + apiVersion + '&provider=' + userName
     basicAuth = getAuthHeaders(userName, userPassword)
     with open(zipFileName, 'wb') as handle:
         response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
