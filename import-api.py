@@ -51,12 +51,12 @@ def main(argv):
 
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
         importSingleApi(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath, apiName, apiVersion)
-        #publishSingleAPI()
     else:
         importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
-        #Publish all APIs
+        #Get updated API list.
         apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
-        publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+
+    publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
@@ -144,13 +144,12 @@ def publishAllApis(hostName, restApiEndpointPort, accessToken, apiList):
     for x in range(0, len(apiList)):
         print "Updatinging API: " + apiList[x][0]
         stsUrl = baseUrl + apiList[x][1] + "&action=Publish"
-        print stsUrl
         response = requests.post(stsUrl, headers=headers, verify=False)
         if response.status_code == 200:
             print "Successfully published API: " + apiList[x][0]
         else:
             print "Error in publishing API :" + apiList[x][1]
-    return True
+    return
 
 def gitPullAllApis(gitRepoPath):
     repo = git.Repo( gitRepoPath )
