@@ -51,6 +51,7 @@ def main(argv):
 
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
         importSingleApi(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath, apiName, apiVersion)
+        apiList = getApiId(hostName,restApiEndpointPort, accessToken, apiName, apiVersion)
     else:
         importAllApis(userName, userPassword, hostName, restApiEndpointPort, gitRepoPath)
         #Get updated API list.
