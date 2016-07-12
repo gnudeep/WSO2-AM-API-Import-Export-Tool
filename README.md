@@ -48,6 +48,7 @@ Command syntax to export single API:
 export-api.py apiKey apiSecret userName password hostName tokenEndpointPort restApiEndpointPort gitRepoPath apiName apiVersion
 ```
 
+Example:
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin admin123 localhost 8243 9443 /tmp/api-repo/ DEEP-Test 1.0.0
 ```
@@ -58,18 +59,60 @@ Command syntax to export all the APIs:
 export-api.py apiKey apiSecret userName@TenantDoamain tenantPassword hostName tokenEndpointPort restApiEndpointPort gitRepoPath
 ```
 
+Example:
 ```
 ./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin@mytenant.com mytenant123 localhost 8243 9443 /tmp/api-repo/
 ```
 
+Command syntax to export single API: 
+```
+./export-api.py iMWERi0Sg60kV3C1u9Mb0_Q0o74a Zm27CVLgUnDQLY8eqlQFgbHf8Ika admin@mytenant.com mytenant123 localhost 8243 9443 /tmp/api-repo/ DEEP-Test 1.0.0
+```
 
 ####API Import steps
-Create an OAuth application in the destination API Manager deployment to import APIs. retrieve a access token to communicate with import APIM REST API.
+Create an OAuth application in the destination API Manager deployment to import APIs. retrieve a access token to communicate with import API Manager REST API.
 
 ####Execute the API Import tool
-API import script updates the local Git repository to get latest changes from the remote Git repo and export all the API in the Git repo to the given APIM deployment.
+API import script updates the local Git repository to get latest changes from the remote Git repo and export all the API in the Git repo to the given API Manager deployment.
 
-Command syntax: import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
+Command syntax to import all APIs: 
+```
+import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath
+```
+
+Example:
 ```
 ./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin admin localhost 8343 9543 /tmp/api-repo/
+```
+
+Command syntax to import single APIs: 
+```
+import-api.py apiKey, apiSecret, userName, password hostName tokenEndpointPort restApiEndpointPort gitRepoPath apiName apiVersion
+```
+
+Example:
+```
+./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin admin localhost 8343 9543 /tmp/api-repo/ DEEP-Test 1.0.0
+```
+
+For Multi-Tenant environments
+Command syntax to import all the APIs:
+
+```
+import-api.py apiKey, apiSecret, userName@TenantDoamain tenantPassword hostName tokenEndpointPort restApiEndpointPort gitRepoPath
+```
+
+Example:
+```
+./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin@mytenant.com mytenant123 localhost 8343 9543 /tmp/api-repo/
+```
+
+Command syntax to import single APIs: 
+```
+import-api.py apiKey, apiSecret, userName@TenantDoamain tenantPassword hostName tokenEndpointPort restApiEndpointPort gitRepoPath apiName apiVersion
+```
+
+Example:
+```
+./import-api.py miFZAyBq46RyVhFwcdspQJc10yMa dZNwt9eC0nNQzfR3uubnqZiVnbUa admin@mytenant.com mytenant123 localhost 8343 9543 /tmp/api-repo/ DEEP-Test 1.0.0
 ```
