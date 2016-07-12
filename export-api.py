@@ -29,8 +29,10 @@ def main(argv):
 
     #Export APIs
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
+        print "Exporting API : " + apiName + "-" + apiVersion
         exportSingleApi(hostName, restApiEndpointPort, userName, userPassword,apiName, apiVersion, gitRepoPath)
     else:
+        print "Exporting All APIs"
         exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
 
     #Unzip all the exported APIs
