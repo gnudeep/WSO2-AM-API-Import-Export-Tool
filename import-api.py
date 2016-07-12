@@ -105,8 +105,7 @@ def deleteAllSubscriptions(hostName, restApiEndpointPort, accessToken,subsList):
             print "Successfully deleted the subscription: " + subsList[x][0] + " : " + subsList[x][0]
         else:
             print "Error in deleting the subscriptions :" + subsList[x][1]
-
-    return True
+    return
 
 def getAllSubscriptions(hostName, restApiEndpointPort, accessToken, apiList):
     baseUrl = getRestApiEndpoint(hostName, restApiEndpointPort) + "/" + "subscriptions?apiId="
@@ -214,7 +213,7 @@ def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     os.chdir(rootdir)
     for file in glob.glob("*.zip"):
         fileName = rootdir + "/" + file
-        print fileName
+        print "Importing feil : " + file
         with open(fileName, 'rb') as f:
             response = requests.post(importUrl, auth=basicAuth, verify=False, files={'file': f})
             if not response.ok:
