@@ -113,16 +113,15 @@ def getAllSubscriptions(hostName, restApiEndpointPort, accessToken, apiList):
     subsList = []
     for x in range(0, len(apiList)):
         stsUrl = baseUrl + apiList[x][1]
-        print stsUrl
         response = requests.get(stsUrl, headers=headers, verify=False)
         if response.status_code == 200:
-            print "Successfully received subscriptions: " + apiList[x][0]
+            print "Successfully received subscriptions for: " + apiList[x][0]
             #Loop over list of subscription and delete subscription
             data = json.loads(response.text)
             for x in range(0, data['count']):
                 subsList.append((data['list'][x]['apiIdentifier'], data['list'][x]['subscriptionId']))
         else:
-            print "Error in getting subscriptions :" + apiList[x][1]
+            print "Error in getting subscriptions: " + apiList[x][1]
     return subsList
 
 def deleteAllApis(hostName, restApiEndpointPort, accessToken, apiList):
@@ -213,7 +212,7 @@ def importAllApis(userName, userPassword, hostName, port, gitRepoPath):
     os.chdir(rootdir)
     for file in glob.glob("*.zip"):
         fileName = rootdir + "/" + file
-        print "Importing feil : " + file
+        print "Importing API Archive: " + file
         with open(fileName, 'rb') as f:
             response = requests.post(importUrl, auth=basicAuth, verify=False, files={'file': f})
             if not response.ok:
