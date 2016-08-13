@@ -124,11 +124,11 @@ def gitPushAllApis(gitRepoPath):
     return True
 
 def getImpExpEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-SNAPSHOT-v0/export-api'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api-import-export-2.0.0-v0/export-api'
     return endPoint
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.9/'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.10/'
     return endPoint
 
 def getTokenEndpoint(hostName, tokenEnpointPort):

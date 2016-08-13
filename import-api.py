@@ -57,7 +57,10 @@ def main(argv):
         #Get updated API list.
         apiList = getAllApis(hostName, restApiEndpointPort, accessToken)
 
-    publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+    if apiList:
+        publishAllApis(hostName,restApiEndpointPort, accessToken, apiList)
+    else:
+        print "Empty API list received"
 
 def getAccessToken(apiKey, apiSecret, userName, userPassword, hostName, tokenEndpointPort, scope):
     stsUrl = getTokenEndpoint(hostName, tokenEndpointPort)
@@ -176,15 +179,15 @@ def zipAllFiles(gitRepoPath):
 
 def getImpExpEndpoint(hostName, port):
     #Preserve provider set to false to support new environments
-    endPoint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-SNAPSHOT-v0/import-api?preserveProvider=false'
+    endPoint = 'https://' + hostName + ':' + port + '/api-import-export-2.0.0-v0/import-api?preserveProvider=false'
     return endPoint
 
 def getRestApiEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.9'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/publisher/v0.10'
     return endPoint
 
 def getRestStoreApiEndpoint(hostName, restApiEnpointPort):
-    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/store/v0.9'
+    endPoint = 'https://' + hostName + ':' + restApiEnpointPort + '/api/am/store/v0.10'
     return endPoint
 
 def getTokenEndpoint(hostName, tokenEnpointPort):
