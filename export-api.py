@@ -30,13 +30,12 @@ def main(argv):
     #Export APIs
     if len(sys.argv) > 9 and len(apiName) and len(apiVersion):
         print "Exporting API : " + apiName + "-" + apiVersion
-        exportSingleApi(hostName, restApiEndpointPort, userName, userPassword,apiName, apiVersion, gitRepoPath)
+        zipFilePath = exportSingleApi(hostName, restApiEndpointPort, userName, userPassword,apiName, apiVersion, gitRepoPath)
+        unzipSingleFile(gitRepoPath, zipFilePath);
     else:
         print "Exporting All APIs"
         exportAllApis(hostName, restApiEndpointPort, userName, userPassword, apiList, gitRepoPath)
-
-    #Unzip all the exported APIs
-    unzipAllFile(gitRepoPath)
+        unzipAllFiles(gitRepoPath)    
 
     #Push to a Git Repository
     dir_list = os.walk(gitRepoPath).next()[1]
@@ -73,24 +72,25 @@ def getAllApis(hostName, restApiEndpointPort, accessToken):
     return apiList
 
 def exportSingleApi(hostName, port, userName, userPassword, apiName, apiVersion, gitRepoPath):
-    zipFileName = gitRepoPath + "/" + apiName + "-" + apiVersion + ".zip"
+    zipFilePath = gitRepoPath + "/" + apiName + "-" + apiVersion + ".zip"
     importExportEndpoint = getImpExpEndpoint(hostName, port)
     exportUrl = importExportEndpoint + '?name=' + apiName + '&version=' + apiVersion + '&provider=' + userName
     basicAuth = getAuthHeaders(userName, userPassword)
-    with open(zipFileName, 'wb') as handle:
+    with open(zipFilePath, 'wb') as handle:
         response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
         if not response.ok:
             print response
         for block in response.iter_content(1024):
             handle.write(block)
+    return zipFilePath
 
 def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
     for x in range(0, len(apiList)):
-        zipFileName = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
+        zipFilePath = gitRepoPath + "/" + apiList[x][0] + "-" + apiList[x][1] + ".zip"
         importExportEndpoint = getImpExpEndpoint(hostName, port)
         exportUrl = importExportEndpoint + '?name=' + apiList[x][0] + '&version=' + apiList[x][1] + '&provider=' + userName
         basicAuth = getAuthHeaders(userName, userPassword)
-        with open(zipFileName, 'wb') as handle:
+        with open(zipFilePath, 'wb') as handle:
             response = requests.get(exportUrl, auth=basicAuth, verify=False, stream=True)
             if not response.ok:
                 print response
@@ -98,16 +98,25 @@ def exportAllApis(hostName, port, userName, userPassword, apiList, gitRepoPath):
                 handle.write(block)
     return
 
-def unzipAllFile(gitRepoPath):
-    extension = ".zip"
-    os.chdir(gitRepoPath)
+def unzipAllFiles(gitRepoPath):
     for item in os.listdir(gitRepoPath):
-        if item.endswith(extension):
-            file_name = os.path.abspath(item)
-            zip_ref = zipfile.ZipFile(file_name)
-            zip_ref.extractall(gitRepoPath)
-            zip_ref.close()
-            os.remove(file_name)
+        filePath = os.path.abspath(os.path.join(gitRepoPath, item))
+        unzipAndRemoveFile(filePath, gitRepoPath)
+    return
+
+def unzipSingleFile(gitRepoPath, zipFilePath):
+    filePath = os.path.abspath(zipFilePath)
+    unzipAndRemoveFile(filePath, gitRepoPath)
+    return
+
+def unzipAndRemoveFile(filePath, targetDirectory):
+    os.chdir(targetDirectory)
+    extension = ".zip"
+    if filePath.endswith(extension):
+        zip_ref = zipfile.ZipFile(filePath)
+        zip_ref.extractall()
+        zip_ref.close()
+        os.remove(filePath)
     return
 
 def gitPushAllApis(gitRepoPath):
